@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoTN API Documentation</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: #1b1b1b;
+            padding: 20px 20px;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            color: #fff;
+            border-bottom: 1px solid #41444e;
+        }
+        #header a {
+            color: #4990e2;
+            text-decoration: none;
+        }
+        #header a:hover {
+            text-decoration: underline;
+        }
+        #version-selector {
+            position: fixed;
+            top: 0;
+            right: 0;
+            z-index: 1001;
+            padding: 14px 20px;
+            background: #1b1b1b;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            border-bottom-left-radius: 4px;
+        }
+        #version-selector label {
+            margin-right: 10px;
+            color: #fff;
+        }
+        #version-selector select {
+            padding: 6px 10px;
+            border: 1px solid #41444e;
+            border-radius: 4px;
+            background-color: #2b2b2b;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #version-selector select:hover {
+            border-color: #4990e2;
+        }
+        #version-selector select:focus {
+            border-color: #4990e2;
+            box-shadow: 0 0 0 2px rgba(73, 144, 226, 0.2);
+        }
+        #version-selector select option {
+            background-color: #2b2b2b;
+            color: #fff;
+        }
+        /* Add margin to the swagger-ui container to account for the header */
+        #swagger-ui {
+            margin-top: 70px;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+    </div>
+    <div id="version-selector">
+        <label for="version">API Version:</label>
+        <select id="version" onchange="changeVersion()">
+            <option value="0.1">Current Version (0.1)</option>
+            <!-- Add more versions as needed -->
+        </select>
+    </div>
+    <div id="swagger-ui"></div>
+
+    <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-standalone-preset.js"></script>
+    <script>
+        const versions = {
+            '0.1': '',
+        };
+
+        // Get URL parameters and tag
+        const urlParams = new URLSearchParams(window.location.search);
+        const versionParam = urlParams.get('version');
+        const tag = window.location.hash.substring(1); // Remove the # character
+
+        function initSwaggerUI(url) {
+            window.ui = SwaggerUIBundle({
+                url: url,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis
+                ],
+                onComplete: function() {
+                    if (tag) {
+                        // Handle SwaggerHub-style deep linking
+                        const operationTag = tag.split('/').pop(); // Get the last part of the tag
+                        // Find the element by data-name attribute
+                        const element = document.querySelector(`[data-name="${operationTag}"]`);
+                        if (element) {
+                            // Find and click the expand button
+                            const expandButton = element.querySelector('.model-box-control');
+                            if (expandButton) {
+                                expandButton.click();
+                                // Scroll the element into view with smooth behavior
+                                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        } else if (spec && spec.paths) {
+                            // If it's a path, find and expand it
+                            Object.entries(spec.paths).forEach(([pathKey, pathObj]) => {
+                                Object.entries(pathObj).forEach(([method, operation]) => {
+                                    if (operation.operationId === operationTag) {
+                                        window.ui.actions.show(pathKey, method);
+                                    }
+                                });
+                            });
+                        }
+                    }
+                }
+            });
+        }
+
+        function changeVersion() {
+            const version = document.getElementById('version').value;
+            const url = versions[version];
+            if (url) {
+                // Update URL with new version
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('version', version);
+                window.history.pushState({}, '', newUrl);
+                
+                initSwaggerUI(url);
+            }
+        }
+
+        // Initialize with version from URL or default to 0.1
+        const initialVersion = versionParam || '0.1';
+        document.getElementById('version').value = initialVersion;
+        initSwaggerUI(versions[initialVersion]);
+    </script>
+</body>
+</html> 
