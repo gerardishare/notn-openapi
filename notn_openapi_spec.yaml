@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
-  title: NoTN (Network of Trusted Networks) Webhook API
+  title: NoTN (Network of Trusted Networks) API
   description: |
-    This API specification defines the webhook subscription endpoints that parties in the NoTN (Network of Trusted Networks) 
+    This API specification defines the webhook subscription and other endpoints that parties in the NoTN (Network of Trusted Networks) 
     must implement based on their role. The specification follows standard webhook implementation patterns including 
     callback URL registration and OAuth 2.0 bearer token authentication.
     
